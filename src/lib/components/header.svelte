@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { useModals } from '$lib/components/modal-stack/modal-stack-provider.svelte';
+	import { cart } from '$lib/features/cart/store.svelte';
 
 	let activeTab = $state<'women' | 'men'>('women');
 
@@ -533,7 +534,7 @@
 						</el-popover-group>
 
 						<!-- Logo -->
-						<a href="#" class="flex">
+						<a href="/" class="flex">
 							<span class="sr-only">Your Company</span>
 							<img
 								src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
@@ -561,7 +562,7 @@
 										/>
 									</svg>
 									<span class="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800"
-										>0</span
+										>{cart.itemCount}</span
 									>
 									<span class="sr-only">items in cart, view bag</span>
 								</button>

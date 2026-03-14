@@ -208,10 +208,10 @@ Two clients are needed: a **public read-only client** for the frontend and a **s
 import { createClient } from '@sanity/client';
 
 export const sanityClient = createClient({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
-  apiVersion: '2024-01-01',
-  useCdn: true,        // Fast reads via CDN
+	projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+	dataset: import.meta.env.PUBLIC_SANITY_DATASET,
+	apiVersion: '2024-01-01',
+	useCdn: true // Fast reads via CDN
 });
 ```
 
@@ -221,11 +221,11 @@ import { createClient } from '@sanity/client';
 import { SANITY_API_TOKEN } from '$env/static/private';
 
 export const sanityServerClient = createClient({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
-  apiVersion: '2024-01-01',
-  useCdn: false,       // Always fresh data server-side
-  token: SANITY_API_TOKEN,
+	projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+	dataset: import.meta.env.PUBLIC_SANITY_DATASET,
+	apiVersion: '2024-01-01',
+	useCdn: false, // Always fresh data server-side
+	token: SANITY_API_TOKEN
 });
 ```
 
@@ -239,14 +239,14 @@ import { sanityClient } from '$lib/config/sanity';
 const builder = imageUrlBuilder(sanityClient);
 
 export function urlFor(source: SanityImageSource) {
-  return builder.image(source);
+	return builder.image(source);
 }
 ```
 
 Usage:
 
 ```typescript
-urlFor(product.image).width(800).height(600).url()
+urlFor(product.image).width(800).height(600).url();
 ```
 
 ### Embedded Studio Route
@@ -271,10 +271,10 @@ import { visionTool } from '@sanity/vision';
 import { schemas } from './schemas';
 
 export default defineConfig({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
-  plugins: [structureTool(), visionTool()],
-  schema: { types: schemas },
+	projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+	dataset: import.meta.env.PUBLIC_SANITY_DATASET,
+	plugins: [structureTool(), visionTool()],
+	schema: { types: schemas }
 });
 ```
 
@@ -293,17 +293,22 @@ Located in: `sanity/schemas/`
 import { defineField, defineType } from 'sanity';
 
 export const product = defineType({
-  name: 'product',
-  title: 'Product',
-  type: 'document',
-  fields: [
-    defineField({ name: 'title', type: 'string', validation: r => r.required() }),
-    defineField({ name: 'slug', type: 'slug', options: { source: 'title' }, validation: r => r.required() }),
-    defineField({ name: 'price', type: 'number', validation: r => r.required().positive() }),
-    defineField({ name: 'description', type: 'array', of: [{ type: 'block' }] }),
-    defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
-    defineField({ name: 'inStock', type: 'boolean', initialValue: true }),
-  ],
+	name: 'product',
+	title: 'Product',
+	type: 'document',
+	fields: [
+		defineField({ name: 'title', type: 'string', validation: (r) => r.required() }),
+		defineField({
+			name: 'slug',
+			type: 'slug',
+			options: { source: 'title' },
+			validation: (r) => r.required()
+		}),
+		defineField({ name: 'price', type: 'number', validation: (r) => r.required().positive() }),
+		defineField({ name: 'description', type: 'array', of: [{ type: 'block' }] }),
+		defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
+		defineField({ name: 'inStock', type: 'boolean', initialValue: true })
+	]
 });
 ```
 
@@ -340,27 +345,29 @@ const productFields = groq`
 `;
 
 export async function getProduct(slug: string): Promise<Product | null> {
-  return await sanityClient.fetch(
-    groq`*[_type == "product" && slug.current == $slug][0] { ${productFields}, description }`,
-    { slug }
-  ) ?? null;
+	return (
+		(await sanityClient.fetch(
+			groq`*[_type == "product" && slug.current == $slug][0] { ${productFields}, description }`,
+			{ slug }
+		)) ?? null
+	);
 }
 
 export async function listProducts(): Promise<ProductListItem[]> {
-  return await sanityClient.fetch(
-    groq`*[_type == "product"] | order(_createdAt desc) { ${productFields} }`
-  );
+	return await sanityClient.fetch(
+		groq`*[_type == "product"] | order(_createdAt desc) { ${productFields} }`
+	);
 }
 
 export async function createProduct(data: ProductInput): Promise<Product> {
-  const created = await sanityServerClient.create({ _type: 'product', ...data });
-  if (!created) throw new Error('Failed to create product');
-  return created as Product;
+	const created = await sanityServerClient.create({ _type: 'product', ...data });
+	if (!created) throw new Error('Failed to create product');
+	return created as Product;
 }
 
 export async function updateProduct(id: string, data: Partial<ProductInput>): Promise<Product> {
-  const updated = await sanityServerClient.patch(id).set(data).commit();
-  return updated as Product;
+	const updated = await sanityServerClient.patch(id).set(data).commit();
+	return updated as Product;
 }
 ```
 
@@ -381,13 +388,13 @@ Located in: `lib/features/*/server/service.ts`
 ```typescript
 // lib/features/orders/server/service.ts
 export async function createOrderFromStripe(
-  sessionId: string,
-  lineItems: StripeLineItem[]
+	sessionId: string,
+	lineItems: StripeLineItem[]
 ): Promise<Order> {
-  // Resolve product references, build order document, write to Sanity
-  const productIds = lineItems.map(item => item.price?.product as string);
-  const products = await resolveStripeProducts(productIds);
-  return await createOrder({ sessionId, products, status: 'paid' });
+	// Resolve product references, build order document, write to Sanity
+	const productIds = lineItems.map((item) => item.price?.product as string);
+	const products = await resolveStripeProducts(productIds);
+	return await createOrder({ sessionId, products, status: 'paid' });
 }
 ```
 
@@ -406,15 +413,15 @@ Located in: `lib/features/*/server/mutations.ts`
 ```typescript
 // lib/features/orders/server/mutations.ts
 export async function createOrderAndNotify(order: OrderInput): Promise<Order> {
-  const createdOrder = await createOrder(order);
+	const createdOrder = await createOrder(order);
 
-  // Fire-and-forget side effects
-  Promise.all([
-    sendOrderConfirmationEmail(createdOrder),
-    invalidateProductCache(order.productId)
-  ]).catch((error) => logger.error('Side effects failed', error));
+	// Fire-and-forget side effects
+	Promise.all([
+		sendOrderConfirmationEmail(createdOrder),
+		invalidateProductCache(order.productId)
+	]).catch((error) => logger.error('Side effects failed', error));
 
-  return createdOrder;
+	return createdOrder;
 }
 ```
 
@@ -432,9 +439,9 @@ import { getProduct } from '$lib/features/products/server/repository';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params }) => {
-  const product = await getProduct(params.slug);
-  if (!product) error(404, 'Product not found');
-  return { product };
+	const product = await getProduct(params.slug);
+	if (!product) error(404, 'Product not found');
+	return { product };
 };
 ```
 
@@ -447,26 +454,26 @@ Centralized error handling with custom error classes.
 ```typescript
 // lib/server/utils/errors.ts
 export class AppError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number = 500,
-    public code?: string
-  ) {
-    super(message);
-    this.name = 'AppError';
-  }
+	constructor(
+		message: string,
+		public statusCode: number = 500,
+		public code?: string
+	) {
+		super(message);
+		this.name = 'AppError';
+	}
 }
 
 export class NotFoundError extends AppError {
-  constructor(resource: string) {
-    super(`${resource} not found`, 404, 'NOT_FOUND');
-  }
+	constructor(resource: string) {
+		super(`${resource} not found`, 404, 'NOT_FOUND');
+	}
 }
 
 export class SanityMutationError extends AppError {
-  constructor(message: string) {
-    super(`Sanity write failed: ${message}`, 500, 'SANITY_MUTATION_ERROR');
-  }
+	constructor(message: string) {
+		super(`Sanity write failed: ${message}`, 500, 'SANITY_MUTATION_ERROR');
+	}
 }
 ```
 
@@ -479,22 +486,22 @@ Sanity supports `[start...end]` slice notation in GROQ for offset pagination. Us
 ```typescript
 // lib/server/sanity/utils.ts
 export interface PaginationParams {
-  page?: number;
-  limit?: number;
+	page?: number;
+	limit?: number;
 }
 
 export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
+	items: T[];
+	total: number;
+	page: number;
+	limit: number;
+	hasMore: boolean;
 }
 
 export function getPaginationSlice(page = 1, limit = 20) {
-  const start = (page - 1) * limit;
-  const end = start + limit;
-  return { start, end };
+	const start = (page - 1) * limit;
+	const end = start + limit;
+	return { start, end };
 }
 ```
 
@@ -502,27 +509,27 @@ export function getPaginationSlice(page = 1, limit = 20) {
 
 ```typescript
 export async function listProducts(
-  pagination?: PaginationParams
+	pagination?: PaginationParams
 ): Promise<PaginatedResult<ProductListItem>> {
-  const page = pagination?.page ?? 1;
-  const limit = pagination?.limit ?? 20;
-  const { start, end } = getPaginationSlice(page, limit);
+	const page = pagination?.page ?? 1;
+	const limit = pagination?.limit ?? 20;
+	const { start, end } = getPaginationSlice(page, limit);
 
-  const [items, total] = await Promise.all([
-    sanityClient.fetch(
-      groq`*[_type == "product"] | order(_createdAt desc) [$start...$end] { ${productFields} }`,
-      { start, end }
-    ),
-    sanityClient.fetch(groq`count(*[_type == "product"])`)
-  ]);
+	const [items, total] = await Promise.all([
+		sanityClient.fetch(
+			groq`*[_type == "product"] | order(_createdAt desc) [$start...$end] { ${productFields} }`,
+			{ start, end }
+		),
+		sanityClient.fetch(groq`count(*[_type == "product"])`)
+	]);
 
-  return {
-    items,
-    total,
-    page,
-    limit,
-    hasMore: end < total,
-  };
+	return {
+		items,
+		total,
+		page,
+		limit,
+		hasMore: end < total
+	};
 }
 ```
 
@@ -613,15 +620,15 @@ This template demonstrates the **scalable, DRY** approach to creating types for 
 ```typescript
 // sanity/schemas/product.ts
 export const product = defineType({
-  name: 'product',
-  title: 'Product',
-  type: 'document',
-  fields: [
-    defineField({ name: 'title', type: 'string' }),
-    defineField({ name: 'slug', type: 'slug' }),
-    defineField({ name: 'price', type: 'number' }),
-    defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
-  ],
+	name: 'product',
+	title: 'Product',
+	type: 'document',
+	fields: [
+		defineField({ name: 'title', type: 'string' }),
+		defineField({ name: 'slug', type: 'slug' }),
+		defineField({ name: 'price', type: 'number' }),
+		defineField({ name: 'image', type: 'image', options: { hotspot: true } })
+	]
 });
 ```
 
@@ -640,16 +647,19 @@ import type { SanityDocument } from '@sanity/types';
 
 // Base type (from generated types or manual)
 export type Product = SanityDocument & {
-  title: string;
-  slug: { current: string };
-  price: number;
-  image: SanityImageSource;
-  description?: PortableTextBlock[];
-  inStock: boolean;
+	title: string;
+	slug: { current: string };
+	price: number;
+	image: SanityImageSource;
+	description?: PortableTextBlock[];
+	inStock: boolean;
 };
 
 // List view type (minimal projection)
-export type ProductListItem = Pick<Product, '_id' | 'title' | 'slug' | 'price' | 'image' | 'inStock'>;
+export type ProductListItem = Pick<
+	Product,
+	'_id' | 'title' | 'slug' | 'price' | 'image' | 'inStock'
+>;
 
 // Non-null version for components
 export type ProductDetail = NonNullable<Product>;
@@ -663,11 +673,11 @@ export type ProductInput = Omit<Product, '_id' | '_type' | '_createdAt' | '_upda
 ```typescript
 // src/lib/features/products/server/repository.ts
 export async function listProducts(): Promise<ProductListItem[]> {
-  return await sanityClient.fetch(groq`*[_type == "product"] { ... }`);
+	return await sanityClient.fetch(groq`*[_type == "product"] { ... }`);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  return await sanityClient.fetch(groq`*[...][0]`, { slug }) ?? null;
+	return (await sanityClient.fetch(groq`*[...][0]`, { slug })) ?? null;
 }
 ```
 
@@ -676,13 +686,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 ```typescript
 // src/routes/(storefront)/products/[slug]/+page.server.ts
 export const load: PageServerLoad = async ({ params }) => {
-  const product = await getProductBySlug(params.slug);
+	const product = await getProductBySlug(params.slug);
 
-  if (!product) error(404, 'Product not found');
+	if (!product) error(404, 'Product not found');
 
-  // Type narrowing: now guaranteed non-null
-  const detail: ProductDetail = product;
-  return { product: detail };
+	// Type narrowing: now guaranteed non-null
+	const detail: ProductDetail = product;
+	return { product: detail };
 };
 ```
 
@@ -731,9 +741,9 @@ Located in: `src/lib/components/modal-stack/config.ts`
 import { stack } from '@svelte-put/async-stack';
 
 export const modalStack = stack()
-  .addVariant('confirm', ConfirmationModal)
-  .addVariant('addProduct', AddProductModal)
-  .build();
+	.addVariant('confirm', ConfirmationModal)
+	.addVariant('addProduct', AddProductModal)
+	.build();
 ```
 
 ### Provider Component

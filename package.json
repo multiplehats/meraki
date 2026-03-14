@@ -13,7 +13,8 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run"
+		"test": "npm run test:unit -- --run",
+		"sanity:typegen": "sanity typegen generate"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",
@@ -59,7 +60,15 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
+		"@portabletext/svelte": "^3.0.1",
+		"@sanity/client": "^7.17.0",
+		"@sanity/image-url": "^2.0.3",
+		"@sanity/vision": "^5.16.0",
+		"@stripe/stripe-js": "^8.9.0",
 		"@svelte-put/async-stack": "^1.5.3",
-		"motion": "^12.36.0"
+		"motion": "^12.36.0",
+		"resend": "^6.9.3",
+		"sanity": "^5.16.0",
+		"stripe": "^20.4.1"
 	}
 }
