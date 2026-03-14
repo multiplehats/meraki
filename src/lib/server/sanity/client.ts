@@ -19,6 +19,8 @@ export function getSanityServerClient(): SanityClient {
 
 export const sanityServerClient: SanityClient = new Proxy({} as SanityClient, {
 	get(_, prop) {
-		return getSanityServerClient()[prop as keyof SanityClient];
+		const client = getSanityServerClient();
+		const value = client[prop as keyof SanityClient];
+		return typeof value === 'function' ? (value as Function).bind(client) : value;
 	}
 });

@@ -5,6 +5,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	envPrefix: ['VITE_', 'PUBLIC_'],
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
@@ -32,5 +33,10 @@ export default defineConfig({
 				}
 			}
 		]
+	},
+	server: {
+		fs: {
+			allow: ['sanity.config.ts', 'sanity/']
+		}
 	}
 });

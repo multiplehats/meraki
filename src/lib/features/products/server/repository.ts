@@ -60,6 +60,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         hotspot,
         crop
       },
+      video{
+        _type,
+        asset
+      },
       attributes[]{
         key,
         value

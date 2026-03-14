@@ -101,7 +101,8 @@
 													<button
 														type="button"
 														onclick={() => cart.updateQty(cartItem.productId, cartItem.qty + 1)}
-														class="rounded p-1 text-gray-400 hover:text-gray-600"
+														disabled={cartItem.qty >= cartItem.stock}
+														class="rounded p-1 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30"
 														aria-label="Increase quantity"
 													>
 														<Plus class="size-3" />

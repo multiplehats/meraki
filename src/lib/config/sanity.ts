@@ -18,6 +18,8 @@ export function getSanityClient(): SanityClient {
 // Convenience singleton — only created on first access at request time
 export const sanityClient: SanityClient = new Proxy({} as SanityClient, {
 	get(_, prop) {
-		return getSanityClient()[prop as keyof SanityClient];
+		const client = getSanityClient();
+		const value = client[prop as keyof SanityClient];
+		return typeof value === 'function' ? (value as Function).bind(client) : value;
 	}
 });

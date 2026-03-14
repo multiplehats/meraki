@@ -42,6 +42,7 @@ export const product = defineType({
 		defineField({ name: 'allowBackorder', type: 'boolean', initialValue: false }),
 		defineField({ name: 'backorderMessage', type: 'string' }),
 		defineField({ name: 'pdfAsset', type: 'file', options: { accept: '.pdf' } }),
+		defineField({ name: 'video', type: 'file', options: { accept: 'video/*' } }),
 		defineField({ name: 'stripeProductId', type: 'string' }),
 		defineField({ name: 'stripePriceId', type: 'string' })
 	]

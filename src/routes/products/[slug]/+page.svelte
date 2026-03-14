@@ -4,18 +4,30 @@
 	import { urlFor } from '$lib/sanity/lib/image';
 	import { cart } from '$lib/features/cart/store.svelte';
 	import { toast } from 'svelte-sonner';
+	import { useModals } from '$lib/components/modal-stack/modal-stack-provider.svelte';
 	import PortableText from '$lib/components/portable-text.svelte';
 	import CharmScroll from '$lib/features/products/components/charm-scroll.svelte';
+
+	const modals = useModals();
 
 	let { data }: { data: PageData } = $props();
 
 	const product = $derived(data.product);
 	const stock = $derived(stockStatus(product));
-	const mainImageUrl = $derived(
-		product.images[0] ? urlFor(product.images[0]).width(800).height(640).fit('crop').url() : null
+	const allImages = $derived(
+		product.images.map((img) => urlFor(img).width(400).height(711).fit('crop').url())
 	);
-	const galleryImages = $derived(
-		product.images.slice(1, 3).map((img) => urlFor(img).width(400).height(400).fit('crop').url())
+	const mainImageUrl = $derived(allImages[0] ?? null);
+	const videoUrl = $derived(
+		product.video?.asset._ref
+			? (() => {
+					const ref = product.video!.asset._ref; // e.g. file-abc123-mp4
+					const [, id, ext] = ref.match(/^file-(.+)-([^-]+)$/) ?? [];
+					return id && ext
+						? `https://cdn.sanity.io/files/haxnatet/production/${id}.${ext}`
+						: null;
+				})()
+			: null
 	);
 	const isBag = $derived(product.category?.slug.current === 'bags');
 
@@ -26,9 +38,11 @@
 			title: product.title,
 			price: product.price,
 			qty: 1,
+			stock: product.stock,
 			imageUrl: mainImageUrl ?? '',
 			isDigital: product.category?.isDigital ?? false
 		});
+		modals.push('cartDrawer', {});
 		toast.success('Added to cart', {
 			description: product.title
 		});
@@ -86,21 +100,38 @@
 					</div>
 				</div>
 
-				<!-- Image gallery -->
+				<!-- Image & video gallery -->
 				<div class="mt-8 lg:col-span-7 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0">
 					<h2 class="sr-only">Images</h2>
-					<div class="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
+					<div class="grid grid-cols-2 gap-2 sm:gap-4">
+						<!-- First image -->
 						{#if mainImageUrl}
-							<img
-								src={mainImageUrl}
-								alt={product.title}
-								class="rounded-lg lg:col-span-2 lg:row-span-2"
-							/>
+							<div class="aspect-9/16 overflow-hidden rounded-lg">
+								<img src={mainImageUrl} alt={product.title} class="size-full object-cover" />
+							</div>
 						{:else}
-							<div class="aspect-4/3 rounded-lg bg-gray-100 lg:col-span-2 lg:row-span-2"></div>
+							<div class="aspect-9/16 rounded-lg bg-gray-100"></div>
 						{/if}
-						{#each galleryImages as imgUrl (imgUrl)}
-							<img src={imgUrl} alt={product.title} class="hidden rounded-lg lg:block" />
+
+						<!-- Video as second item -->
+						{#if videoUrl}
+							<div class="aspect-9/16 overflow-hidden rounded-lg bg-black">
+								<video
+									src={videoUrl}
+									class="size-full object-cover"
+									autoplay
+									playsinline
+									loop
+									muted
+								></video>
+							</div>
+						{/if}
+
+						<!-- Remaining images -->
+						{#each allImages.slice(1) as imgUrl (imgUrl)}
+							<div class="aspect-9/16 overflow-hidden rounded-lg">
+								<img src={imgUrl} alt={product.title} class="size-full object-cover" />
+							</div>
 						{/each}
 					</div>
 				</div>

@@ -1,3 +1,8 @@
+export type SanityFile = {
+	_type: 'file';
+	asset: { _ref: string; _type: 'reference' };
+};
+
 export type SanityImage = {
 	_type: 'image';
 	asset: { _ref: string; _type: 'reference' };
@@ -32,6 +37,7 @@ export type Product = {
 	stock: number;
 	allowBackorder: boolean;
 	backorderMessage?: string;
+	video?: SanityFile;
 	stripeProductId?: string;
 	stripePriceId?: string;
 };

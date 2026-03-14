@@ -32,11 +32,12 @@ function createCartStore() {
 		addItem(newItem: CartItem) {
 			const existing = items.find((i) => i.productId === newItem.productId);
 			if (existing) {
+				const newQty = Math.min(existing.qty + newItem.qty, newItem.stock);
 				items = items.map((i) =>
-					i.productId === newItem.productId ? { ...i, qty: i.qty + newItem.qty } : i
+					i.productId === newItem.productId ? { ...i, qty: newQty } : i
 				);
 			} else {
-				items = [...items, newItem];
+				items = [...items, { ...newItem, qty: Math.min(newItem.qty, newItem.stock) }];
 			}
 			persist();
 		},
@@ -50,7 +51,9 @@ function createCartStore() {
 			if (qty <= 0) {
 				items = items.filter((i) => i.productId !== productId);
 			} else {
-				items = items.map((i) => (i.productId === productId ? { ...i, qty } : i));
+				items = items.map((i) =>
+					i.productId === productId ? { ...i, qty: Math.min(qty, i.stock) } : i
+				);
 			}
 			persist();
 		},

@@ -10,7 +10,7 @@
 	const modals = useModals();
 	const stock = $derived(stockStatus(product));
 	const imageUrl = $derived(
-		product.images[0] ? urlFor(product.images[0]).width(600).height(480).fit('crop').url() : null
+		product.images[0] ? urlFor(product.images[0]).width(600).height(800).fit('crop').url() : null
 	);
 
 	function openQuickView(e: MouseEvent) {
@@ -21,7 +21,7 @@
 
 <div class="group relative" use:motionInView={animations.fadeInUp()}>
 	<a href="/products/{product.slug.current}" class="block">
-		<div class="relative aspect-5/4 overflow-hidden rounded-lg bg-gray-100">
+		<div class="relative aspect-3/4 overflow-hidden rounded-lg bg-gray-100">
 			{#if imageUrl}
 				<img
 					src={imageUrl}

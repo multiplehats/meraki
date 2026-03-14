@@ -31,6 +31,7 @@
 			title: product.title,
 			price: product.price,
 			qty: 1,
+			stock: product.stock,
 			imageUrl: imageUrl ?? '',
 			isDigital: product.category?.isDigital ?? false
 		});
